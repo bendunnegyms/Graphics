@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/seva/work/Graphics/Lab 4/src/main.cpp
+ctime
+-
+iostream
+-
+string
+-
+stdio.h
+-
+math.h
+-
+vector
+-
+GL/glew.h
+-
+GL/freeglut.h
+-
+assimp/cimport.h
+-
+assimp/scene.h
+-
+assimp/postprocess.h
+-
+maths_funcs.h
+/home/seva/work/Graphics/Lab 4/src/maths_funcs.h
+
+/home/seva/work/Graphics/Lab 4/src/maths_funcs.h
+
