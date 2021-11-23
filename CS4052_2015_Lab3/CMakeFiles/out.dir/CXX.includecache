@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/seva/work/Graphics/Graphics/CS4052_2015_Lab3/src/main.cpp
+ctime
+-
+iostream
+-
+string
+-
+stdio.h
+-
+math.h
+-
+vector
+-
+GL/glew.h
+-
+GL/freeglut.h
+-
+glm/glm.hpp
+-
+glm/gtc/matrix_transform.hpp
+-
+glm/gtc/type_ptr.hpp
+-
+assimp/cimport.h
+-
+assimp/scene.h
+-
+assimp/postprocess.h
+-
+maths_funcs.h
+/home/seva/work/Graphics/Graphics/CS4052_2015_Lab3/src/maths_funcs.h
+
+/home/seva/work/Graphics/Graphics/CS4052_2015_Lab3/src/maths_funcs.h
+

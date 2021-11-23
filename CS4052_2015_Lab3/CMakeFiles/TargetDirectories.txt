@@ -1,0 +1,3 @@
+/home/seva/work/Graphics/Graphics/CS4052_2015_Lab3/CMakeFiles/rebuild_cache.dir
+/home/seva/work/Graphics/Graphics/CS4052_2015_Lab3/CMakeFiles/edit_cache.dir
+/home/seva/work/Graphics/Graphics/CS4052_2015_Lab3/CMakeFiles/out.dir
