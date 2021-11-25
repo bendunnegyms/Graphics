@@ -24,15 +24,16 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 
 struct HierarchyNode
 {
-  string hierarchy_name;
-  glm::mat4 transformation;
-  glm::mat4 rotation;
-  vector<HierarchyNode*> children;
+    string hierarchy_name;
+    glm::mat4 transformation;
+    glm::mat4 rotation;
+    vector<HierarchyNode*> children;
+    string parent_name;
 
-  HierarchyNode(string name) : hierarchy_name{ name },
-			       transformation{ glm::mat4(1.0f) },
-			       rotation{ glm::mat4(1.0f) } {}
-  ~HierarchyNode() {}
+    HierarchyNode(string name) : hierarchy_name{ name },
+                    transformation{ glm::mat4(1.0f) },
+                    rotation{ glm::mat4(1.0f) } {}
+    ~HierarchyNode() {}
 };
 
 class Model 
@@ -110,6 +111,7 @@ public:
     //* -- END OF PUBLIC HEIRARCHY FUNCTIONS -- 
 private:
     map<string, HierarchyNode*> hierarchy_nodes;
+    vector<HierarchyNode*> hierarchy_nodes_unsorted;
     
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path)
@@ -130,26 +132,31 @@ private:
         directory = path.substr(0, path.find_last_of('/'));
 
         // process ASSIMP's root node recursively
-        int tier_count = 0;
-        processNode(scene->mRootNode, scene);
+        processNode(scene->mRootNode, scene, "");
     }
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-    void processNode(aiNode *node, const aiScene *scene)
+    void processNode(aiNode *node, const aiScene *scene, string parent_name)
     {   
         // process each mesh located at the current node
+        string mesh_name;
         for(unsigned int i = 0; i < node->mNumMeshes; i++)
         {
             // the node object only contains indices to index the actual objects in the scene. 
             // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+            mesh_name = mesh->mName.C_Str();
+            HierarchyNode *node = new HierarchyNode(mesh_name);
+            node->parent_name = parent_name;
+            hierarchy_nodes_unsorted.push_back(node);
             printf("    %i vertices in mesh\n", mesh->mNumVertices);
-            meshes.push_back(processMesh(mesh, scene));
+            Mesh processed_mesh = processMesh(mesh, scene);
+            meshes.push_back(processed_mesh);
         }
         // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
         for(unsigned int i = 0; i < node->mNumChildren; i++)
         {
-            processNode(node->mChildren[i], scene);
+            processNode(node->mChildren[i], scene, mesh_name);
         }
 
     }
@@ -276,6 +283,7 @@ private:
     //*-- HEIRARCHY FUNCTIONS
     void createHierarchy()
     {
+        /*
         HierarchyNode *root = new HierarchyNode(meshes[0].name);
         hierarchy_nodes[meshes[0].name] = root;
         for (int i = 1; i < meshes.size(); i++)
@@ -286,6 +294,20 @@ private:
             root->children.push_back(node);
         }
         printHierarchy(meshes[0].name);
+        */
+        HierarchyNode *root = hierarchy_nodes_unsorted[0];
+        hierarchy_nodes[root->hierarchy_name] = root;
+
+        for(auto node : hierarchy_nodes_unsorted){
+            string node_parent = node->parent_name;
+            if(node_parent == ""){
+                cout << "beginning mesh hierarchy creation" << endl;
+            } else {
+                hierarchy_nodes[node->hierarchy_name] = node;
+                hierarchy_nodes[node_parent]->children.push_back(node);
+            }
+        }
+        printHierarchy(root->hierarchy_name);
     }
 
     void compileTransformsRecursive(HierarchyNode *node)

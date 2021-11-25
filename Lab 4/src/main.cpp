@@ -49,8 +49,9 @@ float y_1 = 0;
 // -- -- -- PROJECT GLOBALS -- -- --
 //
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
-Model penguin;
+Model deer;
 Shader shader;
+glm::vec3 light_position_world = glm::vec3(0.0, 15.0, 12.0);
 float delta_time = 0.0f;
 float last_time = 0.0f;
 bool first_mouse = true;
@@ -58,9 +59,17 @@ float last_X = 0.0f;
 float last_Y = 0.0f;
 float model_pos_z = 0.0f;
 
+
 //
 // -- -- -- -- -- --- -- -- -- -- --
 
+void init()
+{
+	// Set up the shaders
+	shader = Shader("media/modelVertexShader.txt","media/modelFragmentShader.txt");
+	deer = Model("media/deer.fbx",true);
+	
+}
 
 void display() {
 
@@ -74,47 +83,57 @@ void display() {
 	shader.use();
 	glm::mat4 projection = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
     glm::mat4 view = camera.GetViewMatrix();
-	shader.setMat4("proj", projection);
+	shader.setMat4("projection", projection);
     shader.setMat4("view", view);
+	glm::vec3 view_position = camera.GetViewPosition();
+    shader.setVec3("view_position", view_position);
+    shader.setVec3("light_position", light_position_world);
+
+	//glm::mat4 model = glm::translate(glm::mat4(1.0f),glm::vec3(0,0,0));
+	//deer.setTransform("Body", model);
+
+	//BACK LEFT LEG TRANSFORMS
+	glm::mat4 UBL_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,-6,2.4f));
+	deer.addTransform("UBL", UBL_translate);
+	glm::mat4 UBL_rotate = glm::rotate(glm::mat4(1.0f), cos(last_time*0.005f) * 0.5f, glm::vec3(1,0,0));
+	deer.addTransform("UBL", UBL_rotate);
+	UBL_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,6,-2.4f));
+	deer.addTransform("UBL", UBL_translate);
+
+	glm::mat4 LBL_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,-3,3.0f));
+	deer.addTransform("LBL", LBL_translate);
+	glm::mat4 LBL_rotate = glm::rotate(glm::mat4(1.0f), sin(last_time*0.005f) * 0.8f, glm::vec3(1,0,0));
+	deer.addTransform("LBL", LBL_rotate);
+	LBL_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,3,-3.0f));
+	deer.addTransform("LBL", LBL_translate);
 	
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, model_pos_z *0.001));
-	penguin.setTransform("Penguin_Cylinder_body", model);
 
-
-	glm::mat4 right_arm_model_translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.22,-0.6,0.0));
-	penguin.addTransform("Penguin_Cylinder.004_right_arm", right_arm_model_translate);
-	glm::mat4 right_arm_model_rotate = glm::rotate(glm::mat4(1.0f), sin(last_time *0.005f) * 0.02f, glm::vec3(0.0, 0.0, 1.0));
-	penguin.addRotation("Penguin_Cylinder.004_right_arm", right_arm_model_rotate);
+	//BACK RIGHT LEG TRANSFORMS
+	glm::mat4 UBR_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,-6,2.4f));
+	deer.addTransform("UBR", UBR_translate);
+	glm::mat4 UBR_rotate = glm::rotate(glm::mat4(1.0f), sin(last_time*0.005f) * 0.5f, glm::vec3(1,0,0));
+	deer.addTransform("UBR", UBR_rotate);
+	UBL_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,6,-2.4f));
+	deer.addTransform("UBR", UBL_translate);
 	
-	right_arm_model_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.22,0.6,0.0));
-	penguin.addTransform("Penguin_Cylinder.004_right_arm", right_arm_model_translate);
+	glm::mat4 LBR_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,-3,3.0f));
+	deer.addTransform("LBR", LBR_translate);
+	glm::mat4 LBR_rotate = glm::rotate(glm::mat4(1.0f), cos(last_time*0.005f) * 0.8f, glm::vec3(1,0,0));
+	deer.addTransform("LBR", LBR_rotate);
+	LBR_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,3,-3.0f));
+	deer.addTransform("LBR", LBR_translate);
+
+	//glm::mat4 body_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,-6, 3));
+	//deer.addTransform("Body", body_translate);
+	//glm::mat4 body_rotate = glm::rotate(glm::mat4(1.0f), sin(last_time*0.005f) * 1.0f, glm::vec3(1,0,0));
+	//deer.addTransform("Body", body_rotate);
+	//body_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,6,-3));
+	//deer.addTransform("Body", body_translate);
 	
-	
-	glm::mat4 left_arm_model_translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.22,-0.6,0.0));
-	penguin.addTransform("Penguin_Cylinder.003_left_arm", left_arm_model_translate);
-	glm::mat4 left_arm_model_rotate = glm::rotate(glm::mat4(1.0f), cos(last_time *0.005f) * 0.02f, glm::vec3(0.0, 0.0, 1.0));
-	penguin.addRotation("Penguin_Cylinder.003_left_arm", left_arm_model_rotate);
-	left_arm_model_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.22,0.6,0.0));
-	penguin.addTransform("Penguin_Cylinder.003_left_arm", left_arm_model_translate);
 
-	//leg translations
-
-	glm::mat4 right_leg_model_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0,0.0,0.0));
-	penguin.addTransform("Penguin_Cylinder.001_right_leg", right_leg_model_translate);
-
-	glm::mat4 right_leg_model_rotate = glm::rotate(glm::mat4(1.0f), sin(last_time *0.01f) * 0.2f, glm::vec3(1.0, 0.0, 0.0));
-	penguin.addRotation("Penguin_Cylinder.001_right_leg", right_leg_model_rotate);
-		
-	glm::mat4 left_leg_model_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0,0.0,0.0));
-	penguin.addTransform("Penguin_Cylinder.002_left_leg", left_leg_model_translate);
-
-	glm::mat4 left_leg_model_rotate = glm::rotate(glm::mat4(1.0f), cos(last_time *0.01f) * 0.2f, glm::vec3(1.0, 0.0, 0.0));
-	penguin.addRotation("Penguin_Cylinder.002_left_leg", left_leg_model_rotate);
-
-	penguin.compileTransforms();
-	penguin.Draw(shader);
-	penguin.resetTransforms();
-
+	deer.compileTransforms();
+	deer.Draw(shader);
+	deer.resetTransforms();
 	glPopMatrix(); 		// Don't forget to pop the Matrix
 	glutSwapBuffers();
 }
@@ -131,34 +150,24 @@ void updateScene() {
 }
 
 
-void init()
-{
-	// Set up the shaders
-	shader = Shader("media/simpleVertexShader.txt","media/simpleFragmentShader.txt");
-	penguin = Model("media/penguins/penguin_heirarchied.obj",true);
-	
-}
+
 
 void keypress(unsigned char key, int x, int y) {
 	if (key == 'w') {
 		camera.ProcessKeyboard(FORWARD, delta_time * 0.01f);
-		printf("going forward\n");
 	}
 
 	if (key == 'a')
 	{
 		camera.ProcessKeyboard(LEFT, delta_time * 0.01f);
-		printf("going left\n");
 	}
 	if (key == 's')
 	{
 		camera.ProcessKeyboard(BACKWARD, delta_time * 0.01f);
-		printf("going back\n");
 	}
 	if (key == 'd')
 	{
 		camera.ProcessKeyboard(RIGHT, delta_time * 0.01f);
-		printf("going right\n");
 	}
 	if (key == 'q'){
 		camera.ProcessKeyboard(UP, delta_time * 0.01f);
@@ -195,7 +204,7 @@ void mouseMoved(int x_2, int y_2) {
     last_X = x_2;
     last_Y = y_2;
     camera.ProcessMouseMovement(xoffset, yoffset);
-	printf("mouse moved, %i, %i\n", xoffset, yoffset);
+	//printf("mouse moved, %i, %i\n", xoffset, yoffset);
 }
 
 int main(int argc, char** argv) {
