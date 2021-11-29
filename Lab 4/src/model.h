@@ -26,13 +26,11 @@ struct HierarchyNode
 {
     string hierarchy_name;
     glm::mat4 transformation;
-    glm::mat4 rotation;
     vector<HierarchyNode*> children;
     string parent_name;
 
     HierarchyNode(string name) : hierarchy_name{ name },
-                    transformation{ glm::mat4(1.0f) },
-                    rotation{ glm::mat4(1.0f) } {}
+                    transformation{ glm::mat4(1.0f) }{}
     ~HierarchyNode() {}
 };
 
@@ -44,13 +42,19 @@ public:
     vector<Mesh>    meshes;
     string directory;
     bool gammaCorrection;
+    float x_pos;
+    float z_pos;
+    float movement_parameter;
     
     Model () {}
     // constructor, expects a filepath to a 3D model.
-    Model(string const &path, bool gamma = false) : gammaCorrection(gamma)
+    Model(string const &path, bool gamma = false, float x_pos=0, float z_pos=0, float movement_parameter=0, bool single_depth = false) : gammaCorrection(gamma), x_pos(x_pos), z_pos(z_pos), movement_parameter(movement_parameter)
     {
         loadModel(path);
-        createHierarchy();
+        if (!single_depth)
+            createHierarchy();
+        else   
+            createSingleDepthHierarchy();
     }
 
     ~Model () {}
@@ -69,11 +73,6 @@ public:
     {
         hierarchy_nodes[hierarchy_name]->transformation = transformation;
     }
-
-    void setRotation(string hierarchy_name, glm::mat4 &transformation)
-    {
-        hierarchy_nodes[hierarchy_name]->rotation = transformation;
-    }
     
     void addTransform(const string& hierarchy_name, glm::mat4 &transformation)
     {
@@ -83,19 +82,10 @@ public:
             hierarchy_nodes[hierarchy_name]->transformation = transformation * hierarchy_nodes[hierarchy_name]->transformation;
         }
     }
-    void addRotation(const string& hierarchy_name, glm::mat4 &transformation)
-    {   
-        if ( hierarchy_nodes.find(hierarchy_name) == hierarchy_nodes.end() ) {
-            cout << "\nERROR FINDING HIERARCHY NODE: " << hierarchy_name << endl;
-        } else {
-            hierarchy_nodes[hierarchy_name]->rotation = transformation * hierarchy_nodes[hierarchy_name]->rotation;
-        }
-    }
     
     void compileTransforms()
     {
         compileTransformsRecursive(hierarchy_nodes[meshes[0].name]);
-        compileRotationsRecursive(hierarchy_nodes[meshes[0].name]);
     }
 
 
@@ -105,7 +95,6 @@ public:
         for( auto kv_node : hierarchy_nodes )
         {
             kv_node.second->transformation = glm::mat4(1.0f);
-            kv_node.second->rotation = glm::mat4(1.0f);
         }
     }
     //* -- END OF PUBLIC HEIRARCHY FUNCTIONS -- 
@@ -125,9 +114,9 @@ private:
             cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
             return;
         }
-        printf("  %i materials\n", scene->mNumMaterials);
-        printf("  %i meshes\n", scene->mNumMeshes);
-        printf("  %i textures\n", scene->mNumTextures);
+        //printf("  %i materials\n", scene->mNumMaterials);
+        //printf("  %i meshes\n", scene->mNumMeshes);
+        //printf("  %i textures\n", scene->mNumTextures);
         // retrieve the directory path of the filepath
         directory = path.substr(0, path.find_last_of('/'));
 
@@ -149,7 +138,7 @@ private:
             HierarchyNode *node = new HierarchyNode(mesh_name);
             node->parent_name = parent_name;
             hierarchy_nodes_unsorted.push_back(node);
-            printf("    %i vertices in mesh\n", mesh->mNumVertices);
+            //printf("    %i vertices in mesh\n", mesh->mNumVertices);
             Mesh processed_mesh = processMesh(mesh, scene);
             meshes.push_back(processed_mesh);
         }
@@ -283,18 +272,7 @@ private:
     //*-- HEIRARCHY FUNCTIONS
     void createHierarchy()
     {
-        /*
-        HierarchyNode *root = new HierarchyNode(meshes[0].name);
-        hierarchy_nodes[meshes[0].name] = root;
-        for (int i = 1; i < meshes.size(); i++)
-        {   
-            Mesh mesh = meshes[i];
-            HierarchyNode *node = new HierarchyNode(mesh.name);
-            hierarchy_nodes[mesh.name] = node;
-            root->children.push_back(node);
-        }
-        printHierarchy(meshes[0].name);
-        */
+        
         HierarchyNode *root = hierarchy_nodes_unsorted[0];
         hierarchy_nodes[root->hierarchy_name] = root;
 
@@ -307,31 +285,33 @@ private:
                 hierarchy_nodes[node_parent]->children.push_back(node);
             }
         }
-        printHierarchy(root->hierarchy_name);
+    }
+
+    void createSingleDepthHierarchy()
+    {
+        HierarchyNode *root = new HierarchyNode("root");
+        hierarchy_nodes["root"] = root;
+        for (auto mesh : meshes)
+        {
+            HierarchyNode *node = new HierarchyNode(mesh.name);
+            hierarchy_nodes[mesh.name] = node;
+            root->children.push_back(node);
+        }
     }
 
     void compileTransformsRecursive(HierarchyNode *node)
     {
         for (auto child : node->children)
         {
-            child->transformation = child->transformation * node->transformation;
+            child->transformation = node->transformation * child->transformation; 
             compileTransformsRecursive(child);
-        }
-    }
-
-    void compileRotationsRecursive(HierarchyNode *node)
-    {
-        for (auto child : node->children)
-        {
-            child->rotation = child->rotation * node->rotation;
-            compileRotationsRecursive(child);
         }
     }
 
 
     glm::mat4 getModelMatrix(const string&  mesh_name)
     {
-        return hierarchy_nodes[mesh_name]->transformation * hierarchy_nodes[mesh_name]->rotation ;
+        return hierarchy_nodes[mesh_name]->transformation;
     }
 
     void printHierarchy(const string& name){

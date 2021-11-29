@@ -15,12 +15,14 @@ enum Camera_Movement {
     LEFT,
     RIGHT,
     UP,
-    DOWN
+    DOWN,
+    ROTATE_RIGHT,
+    ROTATE_LEFT
 };
 
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  2.5f;
+const float SPEED       =  1.0f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
 
@@ -32,6 +34,7 @@ public:
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
+    float Tilt;
     float Yaw;
     float Pitch;
     float MovementSpeed;
@@ -44,6 +47,7 @@ public:
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
+        Tilt = 3.0f;
         updateCameraVectors();
     }
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -80,6 +84,18 @@ public:
             Position += Up * velocity;
         if (direction == DOWN)
             Position -= Up* velocity;
+        if (direction == ROTATE_LEFT){
+            Yaw -= Tilt;
+            
+            //if (Yaw < -179.0f)
+              //  Yaw = 179.0f;
+        }
+        if (direction == ROTATE_RIGHT){
+            Yaw += Tilt;
+            //if (Yaw > 179.0f)
+              //  Yaw = -179.0f;
+        }
+        updateCameraVectors();
     }
 
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
@@ -92,10 +108,10 @@ public:
 
         if (constrainPitch)
         {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
+            if (Pitch > 179.0f)
+                Pitch = 179.0f;
+            if (Pitch < -179.0f)
+                Pitch = -179.0f;
         }
 
         updateCameraVectors();
