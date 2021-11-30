@@ -69,28 +69,138 @@ float model_pos_z = 0.0f;
 vector<Model> deer_crowd;
 int crowd_size = 16;
 
+unsigned int cubemapTexture;
+unsigned int skyboxVAO, skyboxVBO;
+float skyboxVertices[] = {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+
 //
 // -- -- -- -- -- --- -- -- -- -- --
+
+unsigned int loadCubemap(vector<std::string> faces)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++)
+    {
+        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+                         0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            );
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
+}  
+
 
 void init()
 {
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 	glEnable(GL_CULL_FACE);
-	//glDepthMask(GL_TRUE);  
+
+	//scale skybox vy factor of 1000
+	int skybox_vertex_count = sizeof(skyboxVertices)/sizeof(*skyboxVertices);
+	for (int i = 0; i < skybox_vertex_count; i++){
+		skyboxVertices[i] = skyboxVertices[i] * 1000;
+	}
+
+	
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	vector<std::string> faces =
+	{
+		"side.jpg",
+		"side.jpg",
+		"side.jpg",
+		"side.jpg",
+		"side.jpg",
+		"side.jpg"
+	};
+	
+	cubemapTexture = loadCubemap(faces); 
+
 	// Set up the shaders
 	deer_shader = Shader("media/modelVertexShader.txt","media/modelFragmentShader.txt");
-	skybox_shader = Shader("media/simpleVertexShader.txt","media/simpleFragmentShader.txt");
+	skybox_shader = Shader("media/skyboxVertexShader.txt","media/skyboxFragmentShader.txt");
 	city_shader = Shader("media/modelVertexShader.txt","media/modelFragmentShader.txt");
+	skybox_shader.use();
+    skybox_shader.setInt("skybox", 0);
+
+
 	for (int i=0; i<crowd_size; i++){
 		//INITIALISE DEER STARTING POS IN A CIRCLE AROUND THE ORIGIN
 		float i_float = (float) i;
 		float offset = (i>8 ? 2 : 1);
 		deer_crowd.push_back(Model("media/deer.fbx",true, (1 * offset * cos(PI * (i_float/4))), (1 * offset * sin(PI * (i_float/4))), last_time));
 	}
-	skybox = Model("media/skybox.obj",true,0,0, last_time);
 	city = Model("media/city/city.obj",true,0,0, last_time, true);
 }
+
 
 
 void animate_deer(Model deer){
@@ -212,6 +322,9 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, width, height); 
 	
+	
+
+
 	city_shader.use();
 	glm::mat4 projection = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
     glm::mat4 view = camera.GetViewMatrix();
@@ -220,12 +333,14 @@ void display() {
 	glm::vec3 view_position = camera.GetViewPosition();
     city_shader.setVec3("view_position", view_position);
     city_shader.setVec3("light_position", light_position_world);
-	city.Draw(city_shader);
 
+	glm::mat4 city_translate = glm::translate(glm::mat4(1.0f), glm::vec3(0,-0.9f, 0.0f));
+	city.addTransform("root", city_translate);
+	city.compileTransforms();
+	city.Draw(city_shader);
+	city.resetTransforms();
 
 	deer_shader.use();
-	projection = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
-    view = camera.GetViewMatrix();
 	deer_shader.setMat4("projection", projection);
     deer_shader.setMat4("view", view);
 	view_position = camera.GetViewPosition();
@@ -233,6 +348,24 @@ void display() {
     deer_shader.setVec3("light_position", light_position_world);
 
 	process_crowd();
+
+
+	// -- SKYBOX --
+	// draw skybox as last
+	glDepthMask(GL_FALSE);  // change depth function so depth test passes when values are equal to depth buffer's content
+	skybox_shader.use();
+	view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+	skybox_shader.setMat4("view", view);
+	skybox_shader.setMat4("projection", projection);
+	// skybox cube
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthMask(GL_TRUE); // set depth function back to default
+
+
 	glutSwapBuffers();
 }
 

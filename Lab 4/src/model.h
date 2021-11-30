@@ -45,10 +45,11 @@ public:
     float x_pos;
     float z_pos;
     float movement_parameter;
+    bool single_depth;
     
     Model () {}
     // constructor, expects a filepath to a 3D model.
-    Model(string const &path, bool gamma = false, float x_pos=0, float z_pos=0, float movement_parameter=0, bool single_depth = false) : gammaCorrection(gamma), x_pos(x_pos), z_pos(z_pos), movement_parameter(movement_parameter)
+    Model(string const &path, bool gamma = false, float x_pos=0, float z_pos=0, float movement_parameter=0, bool single_depth = false) : single_depth(single_depth), gammaCorrection(gamma), x_pos(x_pos), z_pos(z_pos), movement_parameter(movement_parameter)
     {
         loadModel(path);
         if (!single_depth)
@@ -85,7 +86,10 @@ public:
     
     void compileTransforms()
     {
-        compileTransformsRecursive(hierarchy_nodes[meshes[0].name]);
+        if(!single_depth)    
+            compileTransformsRecursive(hierarchy_nodes[meshes[0].name]);
+        else
+            compileTransformsRecursive(hierarchy_nodes["root"]);
     }
 
 
