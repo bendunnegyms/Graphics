@@ -58,7 +58,7 @@ Shader skybox_shader;
 Shader deer_shader;
 Shader city_shader;
 
-glm::vec3 light_position_world = glm::vec3(0.0, 15.0, 12.0);
+glm::vec3 light_position_world = glm::vec3(0.0, 30.0, 12.0);
 float delta_time = 0.0f;
 float last_time = 0.0f;
 bool first_mouse = true;
@@ -156,12 +156,12 @@ void init()
 {
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	//scale skybox vy factor of 1000
 	int skybox_vertex_count = sizeof(skyboxVertices)/sizeof(*skyboxVertices);
 	for (int i = 0; i < skybox_vertex_count; i++){
-		skyboxVertices[i] = skyboxVertices[i] * 1000;
+		skyboxVertices[i] = skyboxVertices[i] * 80;
 	}
 
 	
@@ -174,12 +174,12 @@ void init()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	vector<std::string> faces =
 	{
-		"side.jpg",
-		"side.jpg",
-		"side.jpg",
-		"side.jpg",
-		"side.jpg",
-		"side.jpg"
+		"media/side.png",
+		"media/side.png",
+		"media/side.png",
+		"media/side.png",
+		"media/side.png",
+		"media/side.png"
 	};
 	
 	cubemapTexture = loadCubemap(faces); 
@@ -297,14 +297,7 @@ void animate_deer(Model deer){
 	glPopMatrix(); 		// Don't forget to pop the Matrix
 }
 
-void updateScene() {
 
-	int time_now = glutGet(GLUT_ELAPSED_TIME);
-	delta_time = time_now - last_time;
-	model_pos_z += delta_time;
-    last_time = time_now;
-	glutPostRedisplay();
-}
 
 void process_crowd(){
 	for(int i=0; i<crowd_size; i++){
@@ -432,6 +425,20 @@ void mouseMoved(int x_2, int y_2) {
     last_Y = y_2;
     camera.ProcessMouseMovement(xoffset, yoffset);
 	//printf("mouse moved, %i, %i\n", xoffset, yoffset);
+}
+
+void updateScene() {
+
+	int time_now = glutGet(GLUT_ELAPSED_TIME);
+	delta_time = time_now - last_time;
+	model_pos_z += delta_time;
+    last_time = time_now;
+
+	for(int i = 0; i < crowd_size; i++){
+		deer_crowd[i].z_pos += 0.03f;
+	}
+
+	glutPostRedisplay();
 }
 
 int main(int argc, char** argv) {
