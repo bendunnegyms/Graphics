@@ -4,8 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/seva/work/Graphics/Graphics/Lab 4/src/main.cpp" "/home/seva/work/Graphics/Graphics/Lab 4/CMakeFiles/out.dir/src/main.cpp.o"
-  "/home/seva/work/Graphics/Graphics/Lab 4/src/maths_funcs.cpp" "/home/seva/work/Graphics/Graphics/Lab 4/CMakeFiles/out.dir/src/maths_funcs.cpp.o"
+  "/home/seva/work/YEAR4/Graphics/Lab 4/src/main.cpp" "/home/seva/work/YEAR4/Graphics/Lab 4/CMakeFiles/out.dir/src/main.cpp.o"
+  "/home/seva/work/YEAR4/Graphics/Lab 4/src/maths_funcs.cpp" "/home/seva/work/YEAR4/Graphics/Lab 4/CMakeFiles/out.dir/src/maths_funcs.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

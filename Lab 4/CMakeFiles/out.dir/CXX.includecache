@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/seva/work/Graphics/Graphics/Lab 4/src/camera.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/camera.h
 GL/glew.h
 -
 GL/freeglut.h
@@ -18,7 +18,7 @@ glm/gtc/matrix_transform.hpp
 vector
 -
 
-/home/seva/work/Graphics/Graphics/Lab 4/src/main.cpp
+/home/seva/work/YEAR4/Graphics/Lab 4/src/main.cpp
 ctime
 -
 iostream
@@ -32,7 +32,7 @@ math.h
 vector
 -
 stb_image.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/stb_image.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/stb_image.h
 GL/glew.h
 -
 GL/freeglut.h
@@ -50,17 +50,17 @@ assimp/scene.h
 assimp/postprocess.h
 -
 maths_funcs.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/maths_funcs.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/maths_funcs.h
 shader.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/shader.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/shader.h
 model.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/model.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/model.h
 camera.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/camera.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/camera.h
 
-/home/seva/work/Graphics/Graphics/Lab 4/src/maths_funcs.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/maths_funcs.h
 
-/home/seva/work/Graphics/Graphics/Lab 4/src/mesh.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/mesh.h
 GL/glew.h
 -
 GL/freeglut.h
@@ -92,9 +92,9 @@ vector
 cmath
 -
 shader.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/shader.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/shader.h
 
-/home/seva/work/Graphics/Graphics/Lab 4/src/model.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/model.h
 glm/glm.hpp
 -
 glm/gtc/matrix_transform.hpp
@@ -108,9 +108,9 @@ assimp/scene.h
 assimp/postprocess.h
 -
 mesh.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/mesh.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/mesh.h
 shader.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/shader.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/shader.h
 string
 -
 fstream
@@ -126,7 +126,7 @@ vector
 cmath
 -
 
-/home/seva/work/Graphics/Graphics/Lab 4/src/shader.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/shader.h
 GL/glew.h
 -
 GL/freeglut.h
@@ -142,9 +142,9 @@ sstream
 iostream
 -
 
-/home/seva/work/Graphics/Graphics/Lab 4/src/stb_image.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/stb_image.h
 stb_image.h
-/home/seva/work/Graphics/Graphics/Lab 4/src/stb_image.h
+/home/seva/work/YEAR4/Graphics/Lab 4/src/stb_image.h
 stdio.h
 -
 stdlib.h

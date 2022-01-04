@@ -1,3 +1,3 @@
-/home/seva/work/Graphics/Graphics/Lab 4/CMakeFiles/rebuild_cache.dir
-/home/seva/work/Graphics/Graphics/Lab 4/CMakeFiles/edit_cache.dir
-/home/seva/work/Graphics/Graphics/Lab 4/CMakeFiles/out.dir
+/home/seva/work/YEAR4/Graphics/Lab 4/CMakeFiles/rebuild_cache.dir
+/home/seva/work/YEAR4/Graphics/Lab 4/CMakeFiles/edit_cache.dir
+/home/seva/work/YEAR4/Graphics/Lab 4/CMakeFiles/out.dir

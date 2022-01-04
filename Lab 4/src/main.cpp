@@ -34,8 +34,8 @@ using namespace std;
 
 #define PI 3.14159265
 
-int width = 1200;
-int height = 600;
+int width = 2000;
+int height = 1200;
 
 
 GLfloat rotate_y = 0.0f;
@@ -68,6 +68,9 @@ float model_pos_z = 0.0f;
 
 vector<Model> deer_crowd;
 int crowd_size = 16;
+
+vector<Model> streetlamps;
+
 
 unsigned int cubemapTexture;
 unsigned int skyboxVAO, skyboxVBO;
@@ -435,7 +438,7 @@ void updateScene() {
     last_time = time_now;
 
 	for(int i = 0; i < crowd_size; i++){
-		deer_crowd[i].z_pos += 0.03f;
+		deer_crowd[i].z_pos += 0.04f;
 	}
 
 	glutPostRedisplay();
