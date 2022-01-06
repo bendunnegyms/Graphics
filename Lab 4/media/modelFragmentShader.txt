@@ -13,7 +13,7 @@ in vec3 tnorm;
 in vec2 texture_coordinate;
 in vec4 eyeSpacePos;
 
-uniform Fog fog = {true, {1.0,1.0,1.0}, 0.08};
+uniform Fog fog = {true, {0.75,0.75,0.75}, 0.08};
 uniform sampler2D texture_diffuse1;
 uniform vec3 light_position;
 uniform vec3 view_position;
@@ -28,7 +28,7 @@ vec3 Kd = vec3(1.0, 1.0, 1.0);    // diffuse surface reflectance
 vec3 Ls = vec3(0.95, 0.4, 0.05);    // specular colour
 vec3 Ks = vec3(1.0, 1.0, 1.0);    // specular reflectance
 
-float specular_exponent = 200.0;  // specular 'power'
+float specular_exponent = 300.0;  // specular 'power'
 
 
 vec3 lpos = vec3(0.0, 2.0, 0.0);

@@ -57,6 +57,7 @@ Model skybox;
 Shader skybox_shader;
 Shader deer_shader;
 Shader city_shader;
+Shader cloud_shader;
 
 glm::vec3 light_position_world = glm::vec3(0.0, 30.0, 12.0);
 float delta_time = 0.0f;
@@ -71,6 +72,8 @@ int crowd_size = 16;
 
 vector<Model> streetlamps;
 
+vector<Model> clouds;
+int cloud_count = 32;
 
 unsigned int cubemapTexture;
 unsigned int skyboxVAO, skyboxVBO;
@@ -158,13 +161,15 @@ unsigned int loadCubemap(vector<std::string> faces)
 void init()
 {
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 	//glEnable(GL_CULL_FACE);
 
 	//scale skybox vy factor of 1000
 	int skybox_vertex_count = sizeof(skyboxVertices)/sizeof(*skyboxVertices);
 	for (int i = 0; i < skybox_vertex_count; i++){
-		skyboxVertices[i] = skyboxVertices[i] * 80;
+		skyboxVertices[i] = skyboxVertices[i] * 50;
 	}
 
 	
@@ -177,12 +182,12 @@ void init()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	vector<std::string> faces =
 	{
-		"media/side.png",
-		"media/side.png",
-		"media/side.png",
-		"media/side.png",
-		"media/side.png",
-		"media/side.png"
+		"media/skybox/right.jpg",
+		"media/skybox/left.jpg",
+		"media/skybox/top.jpg",
+		"media/skybox/bottom.jpg",
+		"media/skybox/front.jpg",
+		"media/skybox/back.jpg"
 	};
 	
 	cubemapTexture = loadCubemap(faces); 
@@ -191,6 +196,7 @@ void init()
 	deer_shader = Shader("media/modelVertexShader.txt","media/modelFragmentShader.txt");
 	skybox_shader = Shader("media/skyboxVertexShader.txt","media/skyboxFragmentShader.txt");
 	city_shader = Shader("media/modelVertexShader.txt","media/modelFragmentShader.txt");
+	cloud_shader = Shader("media/shaders/cloudVert.txt", "media/shaders/cloudFrag.txt");
 	skybox_shader.use();
     skybox_shader.setInt("skybox", 0);
 
@@ -199,9 +205,16 @@ void init()
 		//INITIALISE DEER STARTING POS IN A CIRCLE AROUND THE ORIGIN
 		float i_float = (float) i;
 		float offset = (i>8 ? 2 : 1);
-		deer_crowd.push_back(Model("media/deer.fbx",true, (1 * offset * cos(PI * (i_float/4))), (1 * offset * sin(PI * (i_float/4))), last_time));
+		deer_crowd.push_back(Model("media/deer.fbx",true, (1 * offset * cos(PI * (i_float/4))), (1 * offset * sin(PI * (i_float/4))),0, last_time));
 	}
-	city = Model("media/city/city.obj",true,0,0, last_time, true);
+
+	for (int i=0; i<cloud_count; i++){
+		float i_float = (float) i;
+		float offset = (i>24 ? 40 : i>16 ? 30: i>8 ? 20 : 10);
+		clouds.push_back(Model("media/cloud/cloud.obj", true,(1 * offset * cos(PI * (i_float/8))), (1 * offset * sin(PI * (i_float/8))), 20.0, last_time));
+	}
+
+	city = Model("media/city/city.obj",true,0,0,0, last_time, true);
 }
 
 
@@ -309,6 +322,30 @@ void process_crowd(){
 	}	
 }
 
+void move_cloud(Model cloud){
+
+	
+	glm::mat4 cloud_move = glm::translate(glm::mat4(1.0f), glm::vec3(cloud.x_pos, cloud.y_pos, cloud.z_pos));
+	cloud.addTransform("Cloud_1_Icosphere.044", cloud_move);	
+
+	
+
+
+	cloud.compileTransforms();
+	cloud.Draw(cloud_shader);
+	cloud.resetTransforms();
+	glPopMatrix();
+}
+
+void process_clouds(){
+	for(int i=0; i<cloud_count; i++){
+		move_cloud(clouds[i]);
+		//add movement for cloud afterwards
+		clouds[i].x_pos += 0.03;
+		clouds[i].z_pos += 0.03;
+	}
+}
+
 
 
 void display() {
@@ -345,6 +382,14 @@ void display() {
 
 	process_crowd();
 
+	cloud_shader.use();
+	cloud_shader.setMat4("projection", projection);
+    cloud_shader.setMat4("view", view);
+	view_position = camera.GetViewPosition();
+    cloud_shader.setVec3("view_position", view_position);
+    cloud_shader.setVec3("light_position", light_position_world);
+
+	process_clouds();
 
 	// -- SKYBOX --
 	// draw skybox as last
